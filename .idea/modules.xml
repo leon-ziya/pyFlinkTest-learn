@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Connector-kafka/Connector-kafka.iml" filepath="$PROJECT_DIR$/Connector-kafka/Connector-kafka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myFlink-test.iml" filepath="$PROJECT_DIR$/myFlink-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wordcount/wordcount.iml" filepath="$PROJECT_DIR$/wordcount/wordcount.iml" />
+    </modules>
+  </component>
+</project>
