@@ -1,6 +1,8 @@
 """
     读取kafka中车辆实时位置数据，转换为Wgs84坐标
 """
+import math
+
 from kafka import KafkaConsumer
 from kafka import KafkaProducer
 from json import *
@@ -33,15 +35,27 @@ def kafkaConsumer():
         vehiclePosition = VehiclePosition(driverId, orderId, timeStamp, longitude, latitude, time)
         return vehiclePosition
 
+
 def kafkaProducter(wgsPosition):
     producer = KafkaProducer(bootstrap_servers=bootstrap_servers, value_serializer=lambda x: dumps(x).encode('utf-8'))
     position_dict = objectToDict(wgsPosition)
     producer.send(output_topic, value=position_dict)
 
+
 def coordinateTransform(vehiclePosition):
     position = gcj02towgs84(vehiclePosition.longitude, vehiclePosition.latitude)
     wgsVehiclePosition = VehiclePosition(vehiclePosition.driverId, vehiclePosition.orderId, vehiclePosition.timeStamp, position[0], position[1], vehiclePosition.time)
     return wgsVehiclePosition
+
+def wgs84toWebMercator(vehiclePosition):
+    lon = vehiclePosition.longitude
+    lat = vehiclePosition.latitude
+    x = lon*20037508.342789/180
+    y = math.log(math.tan((90+lat)*math.pi/360))/(math.pi/180)
+    y = y * 20037508.34789/180
+    vehiclePosition.resetXAndY(x, y)
+    return vehiclePosition
+
 
 def objectToDict(vehiclePosition):
     return {
@@ -59,5 +73,6 @@ if __name__ == '__main__':
     while var == 1:
         vehiclePosition = kafkaConsumer()
         wgsPosition = coordinateTransform(vehiclePosition)
-        kafkaProducter(wgsPosition)
+        utmPosition = wgs84toWebMercator(wgsPosition)
+        kafkaProducter(utmPosition)
 
